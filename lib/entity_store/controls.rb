@@ -1,6 +1,8 @@
 require 'entity_projection/controls'
 
-require 'entity_projection/controls/event_data'
-require 'entity_projection/controls/message'
-require 'entity_projection/controls/entity'
-require 'entity_projection/controls/projection'
+require 'entity_store/controls/stream_name'
+require 'entity_store/controls/version'
+require 'entity_store/controls/message'
+require 'entity_store/controls/entity'
+require 'entity_store/controls/projection'
+
