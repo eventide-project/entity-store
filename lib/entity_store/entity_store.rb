@@ -1,163 +1,172 @@
-module EntityProjection
+module EntityStore
   def self.included(cls)
     cls.class_exec do
-      include Log::Dependency
+      substitute_class = Class.new(Substitute)
 
-      cls.extend Build
-      cls.extend Call
-      cls.extend Info
-      cls.extend ApplyMacro
-      cls.extend MessageRegistry
-      cls.extend EntityNameMacro
+      substitute_class.send :define_method, :entity_class do
+        cls.entity_class
+      end
 
-      virtual :configure
+      const_set :Substitute, substitute_class
 
-      initializer :entity
+      configure :store
+
+      include Messaging::StreamName
+
+      extend Build
+      extend EntityMacro
+      extend ProjectionMacro
+      extend SnapshotMacro
+
+      dependency :cache, EntityCache
+      dependency :logger, Telemetry::Logger
+      dependency :session
+
+      attr_writer :category_name
+      attr_accessor :new_entity_probe
     end
   end
 
+  def get(id, include: nil)
+    logger.trace "Getting entity (ID: #{id.inspect}, Entity Class: #{entity_class.name.inspect}, Include: #{include.inspect})"
+
+    record = cache.get id
+
+    if record
+      entity = record.entity
+      version = record.version
+      persisted_version = record.persisted_version
+      persisted_time = record.persisted_time
+    else
+      entity = new_entity
+    end
+
+    current_version = refresh entity, id, version
+
+    unless current_version.nil?
+      record = cache.put(
+        id,
+        entity,
+        current_version,
+        persisted_version,
+        persisted_time
+      )
+    end
+
+    logger.debug "Get entity done (ID: #{id.inspect}, Entity Class: #{entity_class.name.inspect}, Include: #{include.inspect}, Version: #{record&.version.inspect}, Time: #{record&.time.inspect})"
+
+    if record
+      record.destructure include
+    else
+      EntityCache::Record::NoStream.destructure include
+    end
+  end
+
+  def get_version(id)
+    _, version = get id, include: :version
+    version
+  end
+
+  def fetch(id, include: nil)
+    res = get(id, include: include)
+
+    if res.nil?
+      res = new_entity
+    end
+
+    if res.is_a?(Array) && res[0].nil?
+      res[0] = new_entity
+    end
+
+    res
+  end
+
+  def new_entity
+    entity = if entity_class.respond_to? :build
+      entity_class.build
+    else
+      entity_class.new
+    end
+
+    unless new_entity_probe.nil?
+      new_entity_probe.(entity)
+    end
+
+    entity
+  end
+
+  def next_version(version)
+    if version
+      version + 1
+    else
+      nil
+    end
+  end
+
+  def refresh(entity, id, current_version)
+    stream_name = self.stream_name id
+
+    starting_position = next_version current_version
+
+    projection_class.(entity, stream_name, starting_position: starting_position, session: session)
+  end
+
   module Build
-    def build(entity)
-      instance = new(entity)
-      instance.configure
+    def build(session: nil)
+      settings = Settings.instance
+
+      instance = new
+
+      write_behind_delay = settings.get :write_behind_delay
+
+      EntityCache.configure(
+        instance,
+        entity_class,
+        persistent_store: snapshot_class,
+        write_behind_delay: write_behind_delay,
+        attr_name: :cache
+      )
+
+      Telemetry::Logger.configure instance
+      EventStore::Client::HTTP::Session.configure instance, session: session
+
       instance
     end
   end
 
-  module Info
-    extend self
+  module EntityMacro
+    def entity_macro(cls)
+      define_singleton_method :entity_class do
+        cls
+      end
 
-    def handler(message_or_event_data)
-      name = handler_name(message_or_event_data)
+      define_method :entity_class do
+        self.class.entity_class
+      end
+    end
+    alias_method :entity, :entity_macro
+  end
 
-      if method_defined?(name)
-        return name
-      else
-        return nil
+  module ProjectionMacro
+    def projection_macro(cls)
+      define_method :projection_class do
+        cls
+      end
+    end
+    alias_method :projection, :projection_macro
+  end
+
+  module SnapshotMacro
+    def self.extended(cls)
+      cls.singleton_class.virtual :snapshot_class
+    end
+
+    def snapshot_macro(cls)
+      define_singleton_method :snapshot_class do
+        cls
       end
     end
 
-    def handles?(message_or_event_data)
-      method_defined? handler_name(message_or_event_data)
-    end
-
-    def handler_name(message_or_event_data)
-      name = nil
-
-      if message_or_event_data.is_a? EventSource::EventData::Read
-        name = Messaging::Message::Info.canonize_name(message_or_event_data.type)
-      else
-        name = message_or_event_data.message_name
-      end
-
-      "apply_#{name}"
-    end
-  end
-
-  module ApplyMacro
-    class Error < RuntimeError; end
-
-    def logger
-      @logger ||= Log.get(self)
-    end
-
-    def apply_macro(message_class, &blk)
-      define_apply_method(message_class, &blk)
-      message_registry.register(message_class)
-    end
-    alias :apply :apply_macro
-
-    def define_apply_method(message_class, &blk)
-      apply_method_name = handler_name(message_class)
-
-      if blk.nil?
-        error_msg = "Handler for #{message_class.name} is not correctly defined. It must have a block."
-        logger.error { error_msg }
-        raise Error, error_msg
-      end
-
-      send(:define_method, apply_method_name, &blk)
-
-      apply_method = instance_method(apply_method_name)
-
-      unless apply_method.arity == 1
-        error_msg = "Handler for #{message_class.name} is not correctly defined. It can only have a single parameter."
-        logger.error { error_msg }
-        raise Error, error_msg
-      end
-
-      apply_method_name
-    end
-  end
-
-  module Call
-    def call(entity, message_or_event_data)
-      instance = build(entity)
-      instance.(message_or_event_data)
-    end
-  end
-
-  module MessageRegistry
-    def message_registry
-      @message_registry ||= Messaging::MessageRegistry.new
-    end
-  end
-
-  module EntityNameMacro
-    def entity_name_macro(entity_name)
-      send(:define_method, entity_name) do
-        entity
-      end
-    end
-    alias :entity_name :entity_name_macro
-  end
-
-  def call(message_or_event_data)
-    if message_or_event_data.is_a? Messaging::Message
-      handle_message(message_or_event_data)
-    else
-      handle_event_data(message_or_event_data)
-    end
-  end
-
-  def handle_message(message)
-    logger.trace(tags: [:handle, :message]) { "Applying message (Message class: #{message.class.name})" }
-    logger.trace(tags: [:data, :message, :handle]) { message.pretty_inspect }
-
-    handler = self.class.handler(message)
-
-    unless handler.nil?
-      public_send(handler, message)
-    end
-
-    logger.info(tags: [:handle, :message]) { "Applied message (Message class: #{message.class.name})" }
-    logger.trace(tags: [:data, :message, :handle]) { message.pretty_inspect }
-
-    message
-  end
-
-  def handle_event_data(event_data)
-    logger.trace(tags: [:handle, :event_data]) { "Applying event data (Type: #{event_data.type})" }
-    logger.trace(tags: [:data, :event_data, :handle]) { event_data.pretty_inspect }
-
-    res = nil
-
-    handler = self.class.handler(event_data)
-
-    unless handler.nil?
-      message_name = Messaging::Message::Info.canonize_name(event_data.type)
-      message_class = self.class.message_registry.get(message_name)
-      res = Messaging::Message::Import.(event_data, message_class)
-      public_send(handler, res)
-    else
-      if respond_to?(:apply)
-        res = apply(event_data)
-      end
-    end
-
-    logger.info(tags: [:handle, :event_data]) { "Applied event data (Type: #{event_data.type})" }
-    logger.info(tags: [:data, :event_data, :handle]) { event_data.pretty_inspect }
-
-    res
+    alias_method :snapshot, :snapshot_macro
   end
 end
