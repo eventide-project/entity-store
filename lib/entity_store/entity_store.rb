@@ -175,7 +175,6 @@ module EntityStore
         cls
       end
     end
-
     alias_method :snapshot, :snapshot_macro
   end
 end
