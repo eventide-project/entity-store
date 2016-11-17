@@ -2,7 +2,7 @@ require_relative 'automated_init'
 
 context "Entity Declaration" do
   context "Entity is declared" do
-    entity_class = Controls::Entity::Example
+    entity_class = Class.new
     store = Controls::EntityStore.example(entity_class: entity_class)
 
     test "Entity class is assigned to the store" do

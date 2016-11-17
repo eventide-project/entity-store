@@ -21,6 +21,7 @@ module EntityStore
 
       configure :store
 
+      virtual :snapshot_class
       virtual :snapshot_interval
 
       extend Build
@@ -43,8 +44,8 @@ module EntityStore
       EntityCache.configure(
         instance,
         entity_class,
-        persistent_store: snapshot_class,
-        persist_interval: snapshot_interval
+        persistent_store: instance.snapshot_class,
+        persist_interval: instance.snapshot_interval
       )
 
       instance
@@ -202,12 +203,8 @@ module EntityStore
   end
 
   module SnapshotMacro
-    def self.extended(cls)
-      cls.singleton_class.virtual :snapshot_class
-    end
-
     def snapshot_macro(cls)
-      define_singleton_method :snapshot_class do
+      define_method :snapshot_class do
         cls
       end
     end

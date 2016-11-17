@@ -2,7 +2,7 @@ require_relative 'automated_init'
 
 context "Reader Declaration" do
   context "Reader is declared" do
-    reader_class = Controls::Reader::Example
+    reader_class = Class.new
     store = Controls::EntityStore.example(reader_class: reader_class)
 
     test "Reader class is assigned to the store" do

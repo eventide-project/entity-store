@@ -2,7 +2,7 @@ require_relative 'automated_init'
 
 context "Projection Declaration" do
   context "Projection is declared" do
-    projection_class = Controls::Projection::Example
+    projection_class = Class.new
     store = Controls::EntityStore.example(projection_class: projection_class)
 
     test "Projection class is assigned to the store" do

@@ -2,7 +2,7 @@ require_relative 'automated_init'
 
 context "Category Declaration" do
   context "Category is declared" do
-    category = Controls::Category.example
+    category = 'some category'
     store = Controls::EntityStore.example(category: category)
 
     test "Category is assigned to the store" do
