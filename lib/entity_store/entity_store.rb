@@ -205,15 +205,6 @@ module EntityStore
     alias_method :reader, :reader_macro
   end
 
-  # module SnapshotMacro
-  #   def snapshot_macro(cls)
-  #     define_method :snapshot_class do
-  #       cls
-  #     end
-  #   end
-  #   alias_method :snapshot, :snapshot_macro
-  # end
-
   module SnapshotMacro
     def snapshot_macro(cls, interval)
       define_method :snapshot_class do
