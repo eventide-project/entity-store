@@ -21,11 +21,14 @@ module EntityStore
 
       configure :store
 
+      virtual :snapshot_interval
+
       extend Build
       extend EntityMacro
       extend ProjectionMacro
       extend ReaderMacro
       extend SnapshotMacro
+      extend SnapshotIntervalMacro
     end
   end
 
@@ -33,10 +36,7 @@ module EntityStore
     def build(snapshot_interval: nil, session: nil)
       instance = new
 
-      if instance.reader_class.nil?
-        raise Error, "Reader is not declared"
-      end
-
+      Build.assure(instance)
 
       instance.session = session
 
@@ -48,6 +48,24 @@ module EntityStore
       )
 
       instance
+    end
+
+    def self.assure(instance)
+      if instance.category.nil?
+        raise Error, "Category is not declared"
+      end
+
+      if instance.entity_class.nil?
+        raise Error, "Entity is not declared"
+      end
+
+      if instance.projection_class.nil?
+        raise Error, "Reader is not declared"
+      end
+
+      if instance.reader_class.nil?
+        raise Error, "Reader is not declared"
+      end
     end
   end
 
@@ -194,5 +212,14 @@ module EntityStore
       end
     end
     alias_method :snapshot, :snapshot_macro
+  end
+
+  module SnapshotIntervalMacro
+    def snapshot_interval_macro(interval)
+      define_method :snapshot_interval do
+        interval
+      end
+    end
+    alias_method :snapshot_interval, :snapshot_interval_macro
   end
 end
