@@ -26,13 +26,14 @@ module EntityStore
       virtual :projection_class
       virtual :snapshot_class
       virtual :snapshot_interval
+      virtual :partition
 
       extend Build
       extend EntityMacro
       extend ProjectionMacro
       extend ReaderMacro
       extend SnapshotMacro
-      extend SnapshotIntervalMacro
+      extend PartitionMacro
     end
   end
 
@@ -218,12 +219,12 @@ module EntityStore
     alias_method :snapshot, :snapshot_macro
   end
 
-  module SnapshotIntervalMacro
-    def snapshot_interval_macro(interval)
-      define_method :snapshot_interval do
-        interval
+  module PartitionMacro
+    def partition_macro(partition)
+      define_method :partition do
+        partition
       end
     end
-    alias_method :snapshot_interval, :snapshot_interval_macro
+    alias_method :partition, :partition_macro
   end
 end
