@@ -120,7 +120,6 @@ module EntityStore
     project = projection_class.build(entity)
 
     logger.trace { "Reading (Stream Name: #{stream_name}, Position: #{current_position}" }
-    # EventSource::Postgres::Read.(stream_name, position: start_position, session: session) do |event_data|
     reader_class.(stream_name, position: start_position, session: session) do |event_data|
       project.(event_data)
       current_position = event_data.position
@@ -207,9 +206,13 @@ module EntityStore
   end
 
   module SnapshotMacro
-    def snapshot_macro(cls)
+    def snapshot_macro(cls, interval)
       define_method :snapshot_class do
         cls
+      end
+
+      define_method :snapshot_interval do
+        interval
       end
     end
     alias_method :snapshot, :snapshot_macro

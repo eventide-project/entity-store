@@ -46,8 +46,7 @@ module EntityStore
           entity entity_class
           projection projection_class
           reader reader_class
-          snapshot snapshot_class unless snapshot_class.nil?
-          snapshot_interval interval unless interval.nil?
+          snapshot snapshot_class, interval
         end
       end
 

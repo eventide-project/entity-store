@@ -3,18 +3,47 @@ require_relative 'automated_init'
 context "Snapshot Declaration" do
   context "Snapshot is declared" do
     snapshot_class = Controls::Snapshot::Example
-    store = Controls::EntityStore.example(snapshot_class: snapshot_class)
+    snapshot_interval = '-1'
+    store = Controls::EntityStore.example(snapshot_class: snapshot_class, snapshot_interval: snapshot_interval)
 
-    test "Persistent store is built and assigned to the store" do
-      assert store.cache.persistent_store.instance_of?(snapshot_class)
+    test "Snapshot class is assigned to the store" do
+      assert(store.snapshot_class == snapshot_class)
+    end
+
+    test "Snapshot interval is assigned to the store" do
+      assert(store.snapshot_interval == snapshot_interval)
+    end
+
+    context "Cache" do
+      test "Persistent store is built and assigned to the store" do
+        assert(store.cache.persistent_store.instance_of? snapshot_class)
+      end
+
+      test "Persist interval is the store's snapshot interval" do
+        assert(store.cache.persist_interval == snapshot_interval)
+      end
     end
   end
 
   context "Snapshot is not declared" do
-    store = Controls::EntityStore.example(snapshot_class: nil)
+    store = Controls::EntityStore.example(snapshot_class: nil, snapshot_interval: nil)
 
-    test "Persistent store is not assigned to the store" do
-      assert store.cache.persistent_store.instance_of?(EntityCache::Storage::Persistent::None)
+    test "Snapshot class is not assigned to the store" do
+      assert(store.snapshot_class.nil?)
+    end
+
+    test "Snapshot interval is not assigned to the store" do
+      assert(store.snapshot_interval.nil?)
+    end
+
+    context "Cache" do
+      test "Persistent store is the default store" do
+        assert(store.cache.persistent_store.instance_of?(EntityCache::Defaults.persistent_store))
+      end
+
+      test "Persist interval is not assigned" do
+        assert(store.cache.persist_interval.nil?)
+      end
     end
   end
 end
