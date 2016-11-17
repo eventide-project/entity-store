@@ -10,4 +10,5 @@ require 'test_bench'; TestBench.activate
 require 'pp'
 require 'securerandom'
 
-require 'entity_store/controls'
+require 'entity_store/postgres/controls'
+Controls = EntityStore::Postgres::Controls
