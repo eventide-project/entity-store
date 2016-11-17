@@ -1,7 +1,7 @@
 require_relative 'automated_init'
 
-context "Snapshot Implementation" do
-  context "No snapshot implementation is specified" do
+context "Snapshot Declaration" do
+  context "Snapshot is not declared" do
     store = Controls::EntityStore.example(snapshot_class: nil)
 
     test "Persistent store is not used" do
@@ -9,7 +9,7 @@ context "Snapshot Implementation" do
     end
   end
 
-  context "Snapshot implementation is specified" do
+  context "Snapshot is declared" do
     snapshot_class = Controls::Snapshot::Example
     store = Controls::EntityStore.example(snapshot_class: snapshot_class)
 

@@ -1,4 +1,6 @@
 module EntityStore
+  Error = Class.new(RuntimeError)
+
   def self.included(cls)
     cls.class_exec do
       include Log::Dependency
@@ -22,6 +24,7 @@ module EntityStore
       extend Build
       extend EntityMacro
       extend ProjectionMacro
+      extend ReaderMacro
       extend SnapshotMacro
     end
   end
@@ -29,6 +32,12 @@ module EntityStore
   module Build
     def build(snapshot_interval: nil, session: nil)
       instance = new
+
+      if instance.reader_class.nil?
+        raise Error, "Reader is not declared"
+      end
+
+
       instance.session = session
 
       EntityCache.configure(
@@ -163,6 +172,15 @@ module EntityStore
       end
     end
     alias_method :projection, :projection_macro
+  end
+
+  module ReaderMacro
+    def reader_macro(cls)
+      define_method :reader_class do
+        cls
+      end
+    end
+    alias_method :reader, :reader_macro
   end
 
   module SnapshotMacro
