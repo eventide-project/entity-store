@@ -1,6 +1,11 @@
 module EntityStore
+  Error = Class.new(RuntimeError)
+
   def self.included(cls)
     cls.class_exec do
+      include Log::Dependency
+      include Messaging::StreamName
+
       substitute_class = Class.new(Substitute)
 
       substitute_class.send :define_method, :entity_class do
@@ -9,26 +14,67 @@ module EntityStore
 
       const_set :Substitute, substitute_class
 
+      attr_accessor :session
+      attr_accessor :new_entity_probe
+
+      dependency :cache, EntityCache
+
       configure :store
 
-      include Messaging::StreamName
+      virtual :category
+      virtual :reader_class
+      virtual :projection_class
+      virtual :snapshot_class
+      virtual :snapshot_interval
 
       extend Build
       extend EntityMacro
       extend ProjectionMacro
+      extend ReaderMacro
       extend SnapshotMacro
+      extend SnapshotIntervalMacro
+    end
+  end
 
-      dependency :cache, EntityCache
-      dependency :logger, Telemetry::Logger
-      dependency :session
+  module Build
+    def build(snapshot_interval: nil, session: nil)
+      instance = new
 
-      attr_writer :category_name
-      attr_accessor :new_entity_probe
+      Build.assure(instance)
+
+      instance.session = session
+
+      EntityCache.configure(
+        instance,
+        entity_class,
+        persistent_store: instance.snapshot_class,
+        persist_interval: instance.snapshot_interval
+      )
+
+      instance
+    end
+
+    def self.assure(instance)
+      if instance.category.nil?
+        raise Error, "Category is not declared"
+      end
+
+      if instance.entity_class.nil?
+        raise Error, "Entity is not declared"
+      end
+
+      if instance.projection_class.nil?
+        raise Error, "Reader is not declared"
+      end
+
+      if instance.reader_class.nil?
+        raise Error, "Reader is not declared"
+      end
     end
   end
 
   def get(id, include: nil)
-    logger.trace "Getting entity (ID: #{id.inspect}, Entity Class: #{entity_class.name.inspect}, Include: #{include.inspect})"
+    logger.trace { "Getting entity (ID: #{id.inspect}, Entity Class: #{entity_class.name}, Include: #{include.inspect})" }
 
     record = cache.get id
 
@@ -53,12 +99,45 @@ module EntityStore
       )
     end
 
-    logger.debug "Get entity done (ID: #{id.inspect}, Entity Class: #{entity_class.name.inspect}, Include: #{include.inspect}, Version: #{record&.version.inspect}, Time: #{record&.time.inspect})"
+    logger.info { "Get entity done (ID: #{id.inspect}, Entity Class: #{entity_class.name}, Include: #{include.inspect}, Version: #{record&.version.inspect}, Time: #{record&.time.inspect})" }
+    logger.info(tags: [:data, :entity]) { entity.pretty_inspect }
 
     if record
       record.destructure include
     else
       EntityCache::Record::NoStream.destructure include
+    end
+  end
+
+  def refresh(entity, id, current_position)
+    logger.trace { "Refreshing (ID: #{id.inspect}, Entity Class: #{entity_class.name}, Current Position #{current_position.inspect})" }
+    logger.trace(tags: [:data, :entity]) { entity.pretty_inspect }
+
+    stream_name = self.stream_name(id)
+
+    start_position = next_position(current_position)
+
+    project = projection_class.build(entity)
+
+    logger.trace { "Reading (Stream Name: #{stream_name}, Position: #{current_position}" }
+    # EventSource::Postgres::Read.(stream_name, position: start_position, session: session) do |event_data|
+    reader_class.(stream_name, position: start_position, session: session) do |event_data|
+      project.(event_data)
+      current_position = event_data.position
+    end
+    logger.debug { "Read (Stream Name: #{stream_name}, Position: #{current_position}" }
+
+    logger.debug { "Refreshed (ID: #{id.inspect}, Entity Class: #{entity_class.name}, Current Position: #{current_position.inspect})" }
+    logger.debug(tags: [:data, :entity]) { entity.pretty_inspect }
+
+    current_position
+  end
+
+  def next_position(position)
+    unless position.nil?
+      position + 1
+    else
+      nil
     end
   end
 
@@ -82,10 +161,11 @@ module EntityStore
   end
 
   def new_entity
-    entity = if entity_class.respond_to? :build
-      entity_class.build
+    entity = nil
+    if entity_class.respond_to? :build
+      entity = entity_class.build
     else
-      entity_class.new
+      entity = entity_class.new
     end
 
     unless new_entity_probe.nil?
@@ -93,45 +173,6 @@ module EntityStore
     end
 
     entity
-  end
-
-  def next_version(version)
-    if version
-      version + 1
-    else
-      nil
-    end
-  end
-
-  def refresh(entity, id, current_version)
-    stream_name = self.stream_name id
-
-    starting_position = next_version current_version
-
-    projection_class.(entity, stream_name, starting_position: starting_position, session: session)
-  end
-
-  module Build
-    def build(session: nil)
-      settings = Settings.instance
-
-      instance = new
-
-      write_behind_delay = settings.get :write_behind_delay
-
-      EntityCache.configure(
-        instance,
-        entity_class,
-        persistent_store: snapshot_class,
-        write_behind_delay: write_behind_delay,
-        attr_name: :cache
-      )
-
-      Telemetry::Logger.configure instance
-      EventStore::Client::HTTP::Session.configure instance, session: session
-
-      instance
-    end
   end
 
   module EntityMacro
@@ -156,17 +197,30 @@ module EntityStore
     alias_method :projection, :projection_macro
   end
 
-  module SnapshotMacro
-    def self.extended(cls)
-      cls.singleton_class.virtual :snapshot_class
-    end
-
-    def snapshot_macro(cls)
-      define_singleton_method :snapshot_class do
+  module ReaderMacro
+    def reader_macro(cls)
+      define_method :reader_class do
         cls
       end
     end
+    alias_method :reader, :reader_macro
+  end
 
+  module SnapshotMacro
+    def snapshot_macro(cls)
+      define_method :snapshot_class do
+        cls
+      end
+    end
     alias_method :snapshot, :snapshot_macro
+  end
+
+  module SnapshotIntervalMacro
+    def snapshot_interval_macro(interval)
+      define_method :snapshot_interval do
+        interval
+      end
+    end
+    alias_method :snapshot_interval, :snapshot_interval_macro
   end
 end

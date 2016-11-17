@@ -20,11 +20,11 @@ module EntityStore
           Example.build :sum => sum
         end
 
-        def self.add(store, id)
+        def self.add(id, store)
           entity = self.example
           version = Version::Cached.example
 
-          store.cache.add id, entity, version, persisted_version: version
+          store.cache.add(id, entity, version, persisted_version: version)
 
           return entity, version
         end

@@ -11,3 +11,4 @@ require 'pp'
 require 'securerandom'
 
 require 'entity_store/controls'
+Controls = EntityStore::Controls
