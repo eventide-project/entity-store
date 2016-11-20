@@ -1,18 +1,18 @@
 module EntityStore
   module Controls
     module EntityStore
-      def self.example(category: nil, entity_class: nil, projection_class: nil, reader_class: nil, partition: nil, snapshot_class: nil, snapshot_interval: nil)
-        if category.nil? && entity_class.nil? && projection_class.nil? && reader_class.nil? && partition.nil? && snapshot_class.nil? && snapshot_interval.nil?
+      def self.example(category: nil, entity_class: nil, projection_class: nil, reader_class: nil, snapshot_class: nil, snapshot_interval: nil)
+        if category.nil? && entity_class.nil? && projection_class.nil? && reader_class.nil? && snapshot_class.nil? && snapshot_interval.nil?
           store_class = Example
         else
-          store_class = example_class(category: category, entity_class: entity_class, projection_class: projection_class, reader_class: reader_class, partition: partition, snapshot_class: snapshot_class, snapshot_interval: snapshot_interval)
+          store_class = example_class(category: category, entity_class: entity_class, projection_class: projection_class, reader_class: reader_class, snapshot_class: snapshot_class, snapshot_interval: snapshot_interval)
         end
 
         instance = store_class.build
         instance
       end
 
-      def self.example_class(category: nil, entity_class: nil, projection_class: nil, reader_class: nil, partition: nil, snapshot_class: nil, snapshot_interval: nil)
+      def self.example_class(category: nil, entity_class: nil, projection_class: nil, reader_class: nil, snapshot_class: nil, snapshot_interval: nil)
         if category == :none
           category = nil
         else
@@ -44,7 +44,6 @@ module EntityStore
           entity entity_class
           projection projection_class
           reader reader_class
-          partition partition
           snapshot snapshot_class, snapshot_interval
         end
       end
