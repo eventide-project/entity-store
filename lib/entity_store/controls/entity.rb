@@ -10,8 +10,14 @@ module EntityStore
 
         attribute :sum
 
-        def ==(other)
-          other.is_a?(self.class) && other.sum == sum
+        module Transformer
+          def self.raw_data(instance)
+            instance.to_h
+          end
+
+          def self.instance(raw_data)
+            Example.build(raw_data)
+          end
         end
       end
 
