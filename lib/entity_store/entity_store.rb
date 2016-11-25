@@ -72,7 +72,7 @@ module EntityStore
     end
   end
 
-  def get(id, include: nil)
+  def get(id, include: nil, &probe_action)
     logger.trace { "Getting entity (ID: #{id.inspect}, Entity Class: #{entity_class.name}, Include: #{include.inspect})" }
 
     record = cache.get id
@@ -86,7 +86,7 @@ module EntityStore
       entity = new_entity
     end
 
-    current_version = refresh entity, id, version
+    current_version = refresh(entity, id, version, &probe_action)
 
     unless current_version.nil?
       record = cache.put(
@@ -108,7 +108,7 @@ module EntityStore
     end
   end
 
-  def refresh(entity, id, current_position)
+  def refresh(entity, id, current_position, &probe_action)
     logger.trace { "Refreshing (ID: #{id.inspect}, Entity Class: #{entity_class.name}, Current Position #{current_position.inspect})" }
     logger.trace(tags: [:data, :entity]) { entity.pretty_inspect }
 
@@ -122,6 +122,10 @@ module EntityStore
     reader_class.(stream_name, position: start_position, session: session) do |event_data|
       project.(event_data)
       current_position = event_data.position
+
+      unless probe_action.nil?
+        probe_action.(event_data)
+      end
     end
     logger.debug { "Read (Stream Name: #{stream_name}, Position: #{current_position}" }
 
