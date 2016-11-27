@@ -47,7 +47,8 @@ module EntityStore
         instance,
         entity_class,
         persistent_store: instance.snapshot_class,
-        persist_interval: instance.snapshot_interval
+        persist_interval: instance.snapshot_interval,
+        session: session
       )
 
       instance
