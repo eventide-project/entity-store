@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 Gem::Specification.new do |s|
   s.name = 'evt-entity_store'
-  s.version = '0.3.2.0'
+  s.version = '0.3.2.1'
   s.summary = 'Store of entities that are projected from streams'
   s.description = ' '
 
@@ -15,8 +15,8 @@ Gem::Specification.new do |s|
   s.platform = Gem::Platform::RUBY
   s.required_ruby_version = '>= 2.3.3'
 
-  s.add_runtime_dependency 'entity_projection'
-  s.add_runtime_dependency 'entity_cache'
+  s.add_runtime_dependency 'evt-entity_projection'
+  s.add_runtime_dependency 'evt-entity_cache'
 
-  s.add_development_dependency 'test_bench'
+  s.add_development_dependency 'ntl-test_bench'
 end
