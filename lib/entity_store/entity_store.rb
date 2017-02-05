@@ -178,6 +178,10 @@ module EntityStore
     entity
   end
 
+  def stream_name(id)
+    "#{category}-#{id}"
+  end
+
   module EntityMacro
     def entity_macro(cls)
       define_singleton_method :entity_class do
