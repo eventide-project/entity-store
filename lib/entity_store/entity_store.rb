@@ -4,7 +4,7 @@ module EntityStore
   def self.included(cls)
     cls.class_exec do
       include Log::Dependency
-      include Messaging::StreamName
+      include Messaging::Category
 
       substitute_class = Class.new(Substitute)
 
