@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 Gem::Specification.new do |s|
   s.name = 'evt-entity_store'
-  s.version = '0.3.2.2'
+  s.version = '0.3.2.3'
   s.summary = 'Store of entities that are projected from streams'
   s.description = ' '
 
