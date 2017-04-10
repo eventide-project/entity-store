@@ -74,7 +74,7 @@ module EntityStore
   end
 
   def get(id, include: nil, &probe_action)
-    logger.trace { "Getting entity (ID: #{id.inspect}, Entity Class: #{entity_class.name}, Include: #{include.inspect})" }
+    logger.trace { "Getting entity (ID: #{id.inspect}, Entity Class: #{entity_class.name})" }
 
     record = cache.get id
 
@@ -99,7 +99,7 @@ module EntityStore
       )
     end
 
-    logger.info { "Get entity done (ID: #{id.inspect}, Entity Class: #{entity_class.name}, Include: #{include.inspect}, Version: #{record&.version.inspect}, Time: #{record&.time.inspect})" }
+    logger.info { "Get entity done (ID: #{id.inspect}, Entity Class: #{entity_class.name}, Version: #{record&.version.inspect}, Time: #{record&.time.inspect})" }
     logger.info(tags: [:data, :entity]) { entity.pretty_inspect }
 
     if record
