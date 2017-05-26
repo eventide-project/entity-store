@@ -6,7 +6,7 @@ module EntityStore
       end
 
       class Example
-        include EventSource::Read
+        include MessageStore::Read
       end
     end
   end
