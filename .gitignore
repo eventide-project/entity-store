@@ -11,3 +11,8 @@ gems_backup
 *scratch*
 *notes*
 loader.rb
+
+lib/entity_store/event_store
+lib/entity_store/event_store.rb
+lib/entity_store/postgres
+lib/entity_store/postgres.rb
