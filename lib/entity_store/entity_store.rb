@@ -128,7 +128,7 @@ module EntityStore
         probe_action.(event_data)
       end
     end
-    logger.debug { "Read (Stream Name: #{stream_name}, Position: #{current_position}" }
+    logger.debug { "Read (Stream Name: #{stream_name}, Position: #{current_position.inspect})" }
 
     logger.debug { "Refreshed (ID: #{id.inspect}, Entity Class: #{entity_class.name}, Current Position: #{current_position.inspect})" }
     logger.debug(tags: [:data, :entity]) { entity.pretty_inspect }
