@@ -37,12 +37,8 @@ context "Snapshot Declaration" do
     end
 
     context "Cache" do
-      test "Persistent store is the default store" do
-        assert(store.cache.persistent_store.instance_of?(EntityCache::Defaults.persistent_store))
-      end
-
-      test "Persist interval is not assigned" do
-        assert(store.cache.persist_interval.nil?)
+      test "Inert (null) perisistent store is configured" do
+        assert(store.cache.persistent_store.instance_of?(EntityCache::Store::Persistent::Null))
       end
     end
   end

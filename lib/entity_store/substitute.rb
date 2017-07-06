@@ -9,11 +9,7 @@ module EntityStore
     def get(id, include: nil)
       record = records[id]
 
-      if record
-        record.destructure include
-      else
-        EntityCache::Record::NoStream.destructure include
-      end
+      EntityCache::Record.destructure(record, include)
     end
 
     def get_version(id)

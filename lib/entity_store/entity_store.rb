@@ -46,9 +46,10 @@ module EntityStore
       EntityCache.configure(
         instance,
         entity_class,
-        persistent_store: instance.snapshot_class,
         persist_interval: instance.snapshot_interval,
-        session: session
+        persistent_store: instance.snapshot_class,
+        persistent_store_session: session,
+        attr_name: :cache
       )
 
       instance
@@ -94,19 +95,15 @@ module EntityStore
         id,
         entity,
         current_version,
-        persisted_version,
-        persisted_time
+        persisted_version: persisted_version,
+        persisted_time: persisted_time
       )
     end
 
     logger.info { "Get entity done (ID: #{id.inspect}, Entity Class: #{entity_class.name}, Version: #{record&.version.inspect}, Time: #{record&.time.inspect})" }
     logger.info(tags: [:data, :entity]) { entity.pretty_inspect }
 
-    if record
-      record.destructure include
-    else
-      EntityCache::Record::NoStream.destructure include
-    end
+    EntityCache::Record.destructure(record, include)
   end
 
   def refresh(entity, id, current_position, &probe_action)
