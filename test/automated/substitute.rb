@@ -13,7 +13,7 @@ context "Substitute" do
       end
 
       test "Version indicates no stream exists" do
-        assert(version == EntityCache::Record::NoStream.version)
+        assert(version == MessageStore::NoStream.name)
       end
     end
 
