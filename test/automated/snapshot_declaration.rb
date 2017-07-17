@@ -15,8 +15,8 @@ context "Snapshot Declaration" do
     end
 
     context "Cache" do
-      test "Persistent store is built and assigned to the store" do
-        assert(store.cache.persistent_store.instance_of? snapshot_class)
+      test "External store is built and assigned to the store" do
+        assert(store.cache.external_store.instance_of? snapshot_class)
       end
 
       test "Persist interval is the store's snapshot interval" do
@@ -37,8 +37,8 @@ context "Snapshot Declaration" do
     end
 
     context "Cache" do
-      test "Inert (null) perisistent store is configured" do
-        assert(store.cache.persistent_store.instance_of?(EntityCache::Store::Persistent::Null))
+      test "Inert (null) external store is configured" do
+        assert(store.cache.external_store.instance_of?(EntityCache::Store::External::Null))
       end
     end
   end

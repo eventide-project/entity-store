@@ -47,8 +47,8 @@ module EntityStore
         instance,
         entity_class,
         persist_interval: instance.snapshot_interval,
-        persistent_store: instance.snapshot_class,
-        persistent_store_session: session,
+        external_store: instance.snapshot_class,
+        external_store_session: session,
         attr_name: :cache
       )
 
