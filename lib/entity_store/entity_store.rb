@@ -65,7 +65,7 @@ module EntityStore
       end
 
       if instance.projection_class.nil?
-        raise Error, "Reader is not declared"
+        raise Error, "Projection is not declared"
       end
 
       if instance.reader_class.nil?
