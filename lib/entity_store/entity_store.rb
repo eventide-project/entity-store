@@ -211,7 +211,13 @@ module EntityStore
   end
 
   module SnapshotMacro
-    def snapshot_macro(cls, interval)
+    def snapshot_macro(cls, int=nil, interval: nil)
+      interval ||= int
+
+      if interval.nil?
+        raise EntityStore::Error, "Snapshot interval must not be omitted"
+      end
+
       define_method :snapshot_class do
         cls
       end
