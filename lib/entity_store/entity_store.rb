@@ -75,7 +75,7 @@ module EntityStore
   end
 
   def get(id, include: nil, &probe_action)
-    logger.trace { "Getting entity (ID: #{id.inspect}, Entity Class: #{entity_class.name})" }
+    logger.trace(tag: :store) { "Getting entity (ID: #{id.inspect}, Entity Class: #{entity_class.name})" }
 
     record = cache.get id
 
@@ -100,14 +100,14 @@ module EntityStore
       )
     end
 
-    logger.info { "Get entity done (ID: #{id.inspect}, Entity Class: #{entity_class.name}, Version: #{record&.version.inspect}, Time: #{record&.time.inspect})" }
+    logger.info(tag: :store) { "Get entity done (ID: #{id.inspect}, Entity Class: #{entity_class.name}, Version: #{record&.version.inspect}, Time: #{record&.time.inspect})" }
     logger.info(tags: [:data, :entity]) { entity.pretty_inspect }
 
     EntityCache::Record.destructure(record, include)
   end
 
   def refresh(entity, id, current_position, &probe_action)
-    logger.trace { "Refreshing (ID: #{id.inspect}, Entity Class: #{entity_class.name}, Current Position #{current_position.inspect})" }
+    logger.trace(tag: :store) { "Refreshing (ID: #{id.inspect}, Entity Class: #{entity_class.name}, Current Position #{current_position.inspect})" }
     logger.trace(tags: [:data, :entity]) { entity.pretty_inspect }
 
     stream_name = self.stream_name(id)
@@ -116,7 +116,7 @@ module EntityStore
 
     project = projection_class.build(entity)
 
-    logger.trace { "Reading (Stream Name: #{stream_name}, Position: #{current_position}" }
+    logger.trace(tag: :store) { "Reading (Stream Name: #{stream_name}, Position: #{current_position}" }
     reader_class.(stream_name, position: start_position, session: session) do |event_data|
       project.(event_data)
       current_position = event_data.position
@@ -125,9 +125,9 @@ module EntityStore
         probe_action.(event_data)
       end
     end
-    logger.debug { "Read (Stream Name: #{stream_name}, Position: #{current_position.inspect})" }
+    logger.debug(tag: :store) { "Read (Stream Name: #{stream_name}, Position: #{current_position.inspect})" }
 
-    logger.debug { "Refreshed (ID: #{id.inspect}, Entity Class: #{entity_class.name}, Current Position: #{current_position.inspect})" }
+    logger.debug(tag: :store) { "Refreshed (ID: #{id.inspect}, Entity Class: #{entity_class.name}, Current Position: #{current_position.inspect})" }
     logger.debug(tags: [:data, :entity]) { entity.pretty_inspect }
 
     current_position
