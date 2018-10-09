@@ -4,6 +4,7 @@ module EntityStore
   def self.included(cls)
     cls.class_exec do
       Configure.activate(self)
+      Dependency.activate(self)
 
       include Log::Dependency
       include Messaging::Category
