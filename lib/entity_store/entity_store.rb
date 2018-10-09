@@ -5,6 +5,7 @@ module EntityStore
     cls.class_exec do
       Configure.activate(self)
       Dependency.activate(self)
+      Virtual.activate(self)
 
       include Log::Dependency
       include Messaging::Category
