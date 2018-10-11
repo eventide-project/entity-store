@@ -28,6 +28,7 @@ module EntityStore
       virtual :category
       virtual :reader_class
       virtual :projection_class
+      virtual :reader_batch_size
       virtual :snapshot_class
       virtual :snapshot_interval
 
@@ -206,9 +207,15 @@ module EntityStore
   end
 
   module ReaderMacro
-    def reader_macro(cls)
+    def reader_macro(cls, batch_sz=nil, batch_size: nil)
+      batch_size ||= batch_sz
+
       define_method :reader_class do
         cls
+      end
+
+      define_method :reader_batch_size do
+        batch_size
       end
     end
     alias_method :reader, :reader_macro
