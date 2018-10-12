@@ -207,9 +207,7 @@ module EntityStore
   end
 
   module ReaderMacro
-    def reader_macro(cls, batch_sz=nil, batch_size: nil)
-      batch_size ||= batch_sz
-
+    def reader_macro(cls, batch_size: nil)
       define_method :reader_class do
         cls
       end
