@@ -1,18 +1,18 @@
 module EntityStore
   module Controls
     module EntityStore
-      def self.example(category: nil, entity_class: nil, projection_class: nil, reader_class: nil, snapshot_class: nil, snapshot_interval: nil, snapshot_interval_keyword: nil, read_batch_size: nil, read_batch_size_keyword: nil)
-        if category.nil? && entity_class.nil? && projection_class.nil? && reader_class.nil? && snapshot_class.nil? && snapshot_interval.nil? && snapshot_interval_keyword.nil? && read_batch_size.nil? && read_batch_size_keyword.nil?
+      def self.example(category: nil, entity_class: nil, projection_class: nil, reader_class: nil, snapshot_class: nil, snapshot_interval: nil, snapshot_interval_keyword: nil, reader_batch_size: nil, reader_batch_size_keyword: nil)
+        if category.nil? && entity_class.nil? && projection_class.nil? && reader_class.nil? && snapshot_class.nil? && snapshot_interval.nil? && snapshot_interval_keyword.nil? && reader_batch_size.nil? && reader_batch_size_keyword.nil?
           store_class = Example
         else
-          store_class = example_class(category: category, entity_class: entity_class, projection_class: projection_class, reader_class: reader_class, snapshot_class: snapshot_class, snapshot_interval: snapshot_interval, snapshot_interval_keyword: snapshot_interval_keyword, read_batch_size: read_batch_size, read_batch_size_keyword: read_batch_size_keyword)
+          store_class = example_class(category: category, entity_class: entity_class, projection_class: projection_class, reader_class: reader_class, snapshot_class: snapshot_class, snapshot_interval: snapshot_interval, snapshot_interval_keyword: snapshot_interval_keyword, reader_batch_size: reader_batch_size, reader_batch_size_keyword: reader_batch_size_keyword)
         end
 
         instance = store_class.build
         instance
       end
 
-      def self.example_class(category: nil, entity_class: nil, projection_class: nil, reader_class: nil, snapshot_class: nil, snapshot_interval: nil, snapshot_interval_keyword: nil, read_batch_size: nil, read_batch_size_keyword: nil)
+      def self.example_class(category: nil, entity_class: nil, projection_class: nil, reader_class: nil, snapshot_class: nil, snapshot_interval: nil, snapshot_interval_keyword: nil, reader_batch_size: nil, reader_batch_size_keyword: nil)
         if category == :none
           category = nil
         else
@@ -37,10 +37,10 @@ module EntityStore
           reader_class ||= Controls::Reader::Example
         end
 
-        if read_batch_size == :none
-          read_batch_size = nil
+        if reader_batch_size == :none
+          reader_batch_size = nil
         else
-          read_batch_size ||= Controls::Reader::BatchSize.example
+          reader_batch_size ||= Controls::Reader::BatchSize.example
         end
 
         Class.new do
@@ -50,10 +50,10 @@ module EntityStore
           entity entity_class
           projection projection_class
 
-          if read_batch_size_keyword.nil?
-            reader reader_class, read_batch_size
+          if reader_batch_size_keyword.nil?
+            reader reader_class, reader_batch_size
           else
-            reader reader_class, batch_size: read_batch_size_keyword
+            reader reader_class, batch_size: reader_batch_size_keyword
           end
 
           unless snapshot_class.nil?
