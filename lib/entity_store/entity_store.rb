@@ -28,6 +28,7 @@ module EntityStore
       virtual :category
       virtual :reader_class
       virtual :projection_class
+      virtual :reader_batch_size
       virtual :snapshot_class
       virtual :snapshot_interval
 
@@ -121,7 +122,7 @@ module EntityStore
     project = projection_class.build(entity)
 
     logger.trace(tag: :store) { "Reading (Stream Name: #{stream_name}, Position: #{current_position}" }
-    reader_class.(stream_name, position: start_position, session: session) do |event_data|
+    reader_class.(stream_name, position: start_position, batch_size: reader_batch_size, session: session) do |event_data|
       project.(event_data)
       current_position = event_data.position
 
@@ -206,9 +207,15 @@ module EntityStore
   end
 
   module ReaderMacro
-    def reader_macro(cls)
+    def reader_macro(cls, batch_sz=nil, batch_size: nil)
+      batch_size ||= batch_sz
+
       define_method :reader_class do
         cls
+      end
+
+      define_method :reader_batch_size do
+        batch_size
       end
     end
     alias_method :reader, :reader_macro
