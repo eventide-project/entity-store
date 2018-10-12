@@ -5,20 +5,10 @@ context "Reader Declaration" do
     context "Supplied" do
       batch_size = Controls::Reader::BatchSize.example
 
-      context "Positional Argument" do
-        store = Controls::EntityStore.example(reader_batch_size: batch_size)
+      store = Controls::EntityStore.example(reader_batch_size: batch_size)
 
-        test "Given batch size is assigned to store" do
-          assert(store.reader_batch_size == batch_size)
-        end
-      end
-
-      context "Keyword Argument" do
-        store = Controls::EntityStore.example(reader_batch_size_keyword: batch_size)
-
-        test "Given batch size is assigned to store" do
-          assert(store.reader_batch_size == batch_size)
-        end
+      test "Given batch size is assigned to store" do
+        assert(store.reader_batch_size == batch_size)
       end
     end
 
