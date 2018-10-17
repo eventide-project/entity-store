@@ -42,7 +42,7 @@ context "Delete Cache Record" do
       assert(internal_store.count == record_count)
     end
 
-    test "Returns Nil" do
+    test "Returns nil" do
       assert(deleted_record.nil?)
     end
   end
