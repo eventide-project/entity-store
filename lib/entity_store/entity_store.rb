@@ -180,9 +180,8 @@ module EntityStore
     entity
   end
 
-## TODO use message store stream name module
   def stream_name(id)
-    "#{category}-#{id}"
+    MessageStore::StreamName.stream_name(category, id)
   end
 
   def delete_cache_record(id)
