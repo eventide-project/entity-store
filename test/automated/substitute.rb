@@ -4,7 +4,7 @@ context "Substitute" do
   id = Controls::ID.example
 
   context "Get" do
-    context "Entity has not been added" do
+    context "Entity Has Not Been Added" do
       store = SubstAttr::Substitute.build(Controls::EntityStore.example_class)
       entity, version = store.get(id, include: :version)
 
@@ -17,7 +17,7 @@ context "Substitute" do
       end
     end
 
-    context "Entity has been added" do
+    context "Entity Has Been Added" do
       control_entity = Controls::Entity.example
       control_version = Controls::Version.example
 
@@ -35,6 +35,42 @@ context "Substitute" do
       end
     end
 
+context "z" do
+    context "Entity Has Been Added" do
+      control_entity_1 = Controls::Entity.example
+
+      control_entity_2 = Controls::Entity.example
+      control_entity_2.sum = control_entity_1.sum * 11
+
+      control_version = Controls::Version.example
+
+      store = SubstAttr::Substitute.build(Controls::EntityStore.example_class)
+      # store.add(id, control_entity_1, control_version)
+      store.add(id, control_entity_1)
+
+      entity = store.get(id)
+      assert(entity == control_entity_1)
+
+
+      store.add(id, control_entity_2)
+      entity = store.get(id)
+
+      test "Entity is returned" do
+        assert(entity == control_entity_2)
+      end
+
+      # test "Version is returned" do
+      #   assert(version == control_version)
+      # end
+    end
+  end
+
+
+
+
+
+
+
     context "Version" do
       entity = Object.new
       control_version = Controls::Version.example
@@ -51,7 +87,7 @@ context "Substitute" do
   end
 
   context "Fetch" do
-    context "Entity has not been added" do
+    context "Entity Has Not Been Added" do
       store = SubstAttr::Substitute.build(Controls::EntityStore.example_class)
 
       entity = store.fetch(id)
