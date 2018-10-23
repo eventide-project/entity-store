@@ -40,9 +40,8 @@ context "Substitute" do
       control_version_1 = Controls::Version.example
 
       control_entity_2 = Controls::Entity.example
-      control_entity_2.sum = control_entity_1.sum + 11
 
-      control_version_2 = control_version_1 + 11
+      control_version_2 = control_version_1 + 1
 
       store = SubstAttr::Substitute.build(Controls::EntityStore.example_class)
       store.add(id, control_entity_1, control_version_1)
