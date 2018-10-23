@@ -35,41 +35,34 @@ context "Substitute" do
       end
     end
 
-context "z" do
-    context "Entity Has Been Added" do
+    context "Entity Has Been Added More than Once" do
       control_entity_1 = Controls::Entity.example
+      control_version_1 = Controls::Version.example
 
       control_entity_2 = Controls::Entity.example
-      control_entity_2.sum = control_entity_1.sum * 11
+      control_entity_2.sum = control_entity_1.sum + 11
 
-      control_version = Controls::Version.example
+      control_version_2 = control_version_1 + 11
 
       store = SubstAttr::Substitute.build(Controls::EntityStore.example_class)
-      # store.add(id, control_entity_1, control_version)
-      store.add(id, control_entity_1)
+      store.add(id, control_entity_1, control_version_1)
 
-      entity = store.get(id)
+      entity, version = store.get(id, include: :version)
       assert(entity == control_entity_1)
+      assert(version == control_version_1)
 
+      store.add(id, control_entity_2, control_version_2)
 
-      store.add(id, control_entity_2)
-      entity = store.get(id)
+      entity,version = store.get(id, include: :version)
 
-      test "Entity is returned" do
+      test "Updated entity is returned" do
         assert(entity == control_entity_2)
       end
 
-      # test "Version is returned" do
-      #   assert(version == control_version)
-      # end
+      test "Updated version is returned" do
+        assert(version == control_version_2)
+      end
     end
-  end
-
-
-
-
-
-
 
     context "Version" do
       entity = Object.new
