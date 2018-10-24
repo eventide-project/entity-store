@@ -7,6 +7,12 @@ module EntityStore
 
       class Example
         include MessageStore::Read
+
+        module Defaults
+          def self.batch_size
+            Reader::BatchSize.example
+          end
+        end
       end
 
       module BatchSize
