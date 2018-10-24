@@ -15,8 +15,8 @@ context "Reader Declaration" do
     context "Omitted" do
       store = Controls::EntityStore.example(reader_batch_size: :none)
 
-      test "Read batch size is not set on store" do
-        assert(store.reader_batch_size.nil?)
+      test "Read batch size is set to the default" do
+        assert(store.reader_batch_size == EntityStore::Defaults.batch_size)
       end
     end
   end

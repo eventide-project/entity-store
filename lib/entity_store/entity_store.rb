@@ -217,7 +217,7 @@ module EntityStore
       end
 
       define_method :reader_batch_size do
-        batch_size
+        batch_size ||= Defaults.batch_size
       end
     end
     alias_method :reader, :reader_macro
@@ -240,5 +240,11 @@ module EntityStore
       end
     end
     alias_method :snapshot, :snapshot_macro
+  end
+
+  module Defaults
+    def self.batch_size
+      1000
+    end
   end
 end
