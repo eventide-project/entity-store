@@ -3,7 +3,7 @@ require_relative '../automated_init'
 context "Snapshot Declaration" do
   context "Snapshot is declared" do
     snapshot_class = Controls::Snapshot::Example
-    snapshot_interval = '1'
+    snapshot_interval = 1
     store = Controls::EntityStore.example(snapshot_class: snapshot_class, snapshot_interval: snapshot_interval)
 
     test "Snapshot class is assigned to the store" do

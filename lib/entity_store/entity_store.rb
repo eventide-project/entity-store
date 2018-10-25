@@ -76,6 +76,13 @@ module EntityStore
       if instance.reader_class.nil?
         raise Error, "Reader is not declared"
       end
+
+      snapshot_class = instance.snapshot_class
+      unless snapshot_class.nil?
+        if snapshot_class.respond_to?(:assure)
+          snapshot_class.assure(instance)
+        end
+      end
     end
   end
 
@@ -224,13 +231,7 @@ module EntityStore
   end
 
   module SnapshotMacro
-    def snapshot_macro(cls, int=nil, interval: nil)
-      interval ||= int
-
-      if interval.nil?
-        raise EntityStore::Error, "Snapshot interval must not be omitted"
-      end
-
+    def snapshot_macro(cls, interval: nil)
       define_method :snapshot_class do
         cls
       end
