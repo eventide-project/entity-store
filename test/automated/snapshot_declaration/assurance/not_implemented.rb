@@ -5,9 +5,9 @@ context "Snapshot Declaration" do
     context "Not Implemented" do
       snapshot_class = Controls::Snapshot::Assurance::NotImplemented::Example
 
-      test "Doesn't raise an error" do
-        refute proc { Controls::EntityStore.example(snapshot_class: snapshot_class) } do
-          raises_error? Controls::Snapshot::Assurance::Error
+      test "Is an error" do
+        assert proc { Controls::EntityStore.example(snapshot_class: snapshot_class) } do
+          raises_error? EntityStore::Error
         end
       end
     end

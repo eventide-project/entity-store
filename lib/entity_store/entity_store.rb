@@ -81,6 +81,8 @@ module EntityStore
       unless snapshot_class.nil?
         if snapshot_class.respond_to?(:assure)
           snapshot_class.assure(instance)
+        else
+          raise Error, "#{snapshot_class} snapshot class doesn't implement the `assure' method"
         end
       end
     end
