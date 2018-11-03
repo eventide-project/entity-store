@@ -1,6 +1,10 @@
 # entity_store
 
-Store of entities that are projected from streams
+Store of entities that are projected from streams.
+
+## Documentation
+
+See the [Eventide documentation site](http://docs.eventide-project.org) for more information, examples, and user guides.
 
 ## License
 
