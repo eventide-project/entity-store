@@ -130,7 +130,7 @@ module EntityStore
 
     project = projection_class.build(entity)
 
-    logger.trace(tag: :refresh) { "Reading (Stream Name: #{stream_name}, Position: #{current_position}" }
+    logger.trace(tag: :refresh) { "Reading (Stream Name: #{stream_name}, Position: #{current_position})" }
     reader_class.(stream_name, position: start_position, batch_size: reader_batch_size, session: session) do |event_data|
       project.(event_data)
       current_position = event_data.position
