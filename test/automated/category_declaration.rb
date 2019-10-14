@@ -13,8 +13,8 @@ context "Category Declaration" do
   context "Category is not declared" do
     context "Build" do
       test "Is an error" do
-        assert proc { Controls::EntityStore.example(category: :none) } do
-          raises_error? EntityStore::Error
+        assert_raises EntityStore::Error do
+          Controls::EntityStore.example(category: :none)
         end
       end
     end

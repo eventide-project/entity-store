@@ -13,8 +13,8 @@ context "Projection Declaration" do
   context "Projection is not declared" do
     context "Build" do
       test "Is an error" do
-        assert proc { Controls::EntityStore.example(projection_class: :none) } do
-          raises_error? EntityStore::Error
+        assert_raises EntityStore::Error do
+          Controls::EntityStore.example(projection_class: :none)
         end
       end
     end
