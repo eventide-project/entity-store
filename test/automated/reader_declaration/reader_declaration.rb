@@ -13,7 +13,7 @@ context "Reader Declaration" do
   context "Reader is not declared" do
     context "Build" do
       test "Is an error" do
-        assert_raises EntityStore::Error do
+        assert_raises(EntityStore::Error) do
           Controls::EntityStore.example(reader_class: :none)
         end
       end

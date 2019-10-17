@@ -6,7 +6,7 @@ context "Snapshot Declaration" do
       snapshot_class = Controls::Snapshot::Assurance::Assured::Example
 
       test "Doesn't raise an error" do
-        refute_raises Controls::Snapshot::Assurance::Error do
+        refute_raises(Controls::Snapshot::Assurance::Error) do
           Controls::EntityStore.example(snapshot_class: snapshot_class)
         end
       end

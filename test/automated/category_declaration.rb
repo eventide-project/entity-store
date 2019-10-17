@@ -13,7 +13,7 @@ context "Category Declaration" do
   context "Category is not declared" do
     context "Build" do
       test "Is an error" do
-        assert_raises EntityStore::Error do
+        assert_raises(EntityStore::Error) do
           Controls::EntityStore.example(category: :none)
         end
       end
