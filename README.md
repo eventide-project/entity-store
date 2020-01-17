@@ -1,6 +1,6 @@
 # entity_store
 
-Store of entities that are projected from streams.
+Project and cache entities from event streams, with optional on-disk snapshotting
 
 ## Documentation
 

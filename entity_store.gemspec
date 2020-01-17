@@ -2,7 +2,7 @@
 Gem::Specification.new do |s|
   s.name = 'evt-entity_store'
   s.version = '2.0.0.1'
-  s.summary = 'Store of entities that are projected from streams'
+  s.summary = 'Project and cache entities from event streams, with optional on-disk snapshotting'
   s.description = ' '
 
   s.authors = ['The Eventide Project']
