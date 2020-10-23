@@ -177,6 +177,7 @@ module EntityStore
 
     res
   end
+  alias :project :fetch
 
   def new_entity
     entity = nil
