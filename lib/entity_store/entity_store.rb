@@ -32,6 +32,8 @@ module EntityStore
       virtual :snapshot_class
       virtual :snapshot_interval
 
+      virtual :configure
+
       extend Build
       extend EntityMacro
       extend ProjectionMacro
@@ -56,6 +58,8 @@ module EntityStore
         external_store_session: session,
         attr_name: :cache
       )
+
+      instance.configure
 
       instance
     end
