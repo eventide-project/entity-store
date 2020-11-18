@@ -16,6 +16,10 @@ module EntityStore
         cls.entity_class
       end
 
+      substitute_class.send :define_method, :entity_id_attribute do
+        cls.entity_id_attribute
+      end
+
       const_set :Substitute, substitute_class
 
       attr_accessor :session
@@ -73,6 +77,11 @@ module EntityStore
         raise Error, "Entity is not declared"
       end
 
+      unless instance.entity_id_attribute.nil? ||
+          instance.entity_class.instance_methods.include?(instance.entity_id_attribute)
+        raise Error, "Entity"
+      end
+
       if instance.projection_class.nil?
         raise Error, "Projection is not declared"
       end
@@ -103,7 +112,7 @@ module EntityStore
       persisted_version = record.persisted_version
       persisted_time = record.persisted_time
     else
-      entity = new_entity
+      entity = new_entity(id)
     end
 
     current_version = refresh(entity, id, version, &probe_action)
@@ -170,11 +179,11 @@ module EntityStore
     res = get(id, include: include)
 
     if res.nil?
-      res = new_entity
+      res = new_entity(id)
     end
 
     if res.is_a?(Array) && res[0].nil?
-      res[0] = new_entity
+      res[0] = new_entity(id)
     end
 
     logger.info(tag: :fetch) { "Fetch entity done (ID: #{id.inspect}, Entity Class: #{entity_class.name})" }
@@ -183,12 +192,16 @@ module EntityStore
   end
   alias :project :fetch
 
-  def new_entity
+  def new_entity(id)
     entity = nil
     if entity_class.respond_to? :build
       entity = entity_class.build
     else
       entity = entity_class.new
+    end
+
+    unless entity_id_attribute.nil?
+      entity.public_send(:"#{entity_id_attribute}=", id)
     end
 
     unless new_entity_probe.nil?
@@ -207,13 +220,21 @@ module EntityStore
   end
 
   module EntityMacro
-    def entity_macro(cls)
+    def entity_macro(cls, id_attribute: nil)
       define_singleton_method :entity_class do
         cls
       end
 
       define_method :entity_class do
         self.class.entity_class
+      end
+
+      define_singleton_method :entity_id_attribute do
+        id_attribute
+      end
+
+      define_method :entity_id_attribute do
+        self.class.entity_id_attribute
       end
     end
     alias_method :entity, :entity_macro
