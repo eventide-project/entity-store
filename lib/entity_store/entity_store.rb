@@ -45,7 +45,7 @@ module EntityStore
   end
 
   module Build
-    def build(snapshot_interval: nil, session: nil)
+    def build(specifier: nil, snapshot_interval: nil, session: nil)
       instance = new
 
       instance.session = session
@@ -54,9 +54,11 @@ module EntityStore
 
       Build.assure(instance)
 
+      specifier ||= instance.specifier
       EntityCache.configure(
         instance,
         entity_class,
+        specifier,
         persist_interval: instance.snapshot_interval,
         external_store: instance.snapshot_class,
         external_store_session: session,
