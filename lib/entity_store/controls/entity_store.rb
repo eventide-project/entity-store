@@ -1,18 +1,18 @@
 module EntityStore
   module Controls
     module EntityStore
-      def self.example(category: nil, entity_class: nil, projection_class: nil, reader_class: nil, snapshot_class: nil, snapshot_interval: nil, reader_batch_size: nil)
-        if category.nil? && entity_class.nil? && projection_class.nil? && reader_class.nil? && snapshot_class.nil? && snapshot_interval.nil? && reader_batch_size.nil?
+      def self.example(category: nil, entity_class: nil, projection_class: nil, reader_class: nil, snapshot_class: nil, snapshot_interval: nil, reader_batch_size: nil, specifier: nil)
+        if category.nil? && entity_class.nil? && projection_class.nil? && reader_class.nil? && snapshot_class.nil? && snapshot_interval.nil? && reader_batch_size.nil? && specifier.nil?
           store_class = Example
         else
-          store_class = example_class(category: category, entity_class: entity_class, projection_class: projection_class, reader_class: reader_class, snapshot_class: snapshot_class, snapshot_interval: snapshot_interval, reader_batch_size: reader_batch_size)
+          store_class = example_class(category: category, entity_class: entity_class, projection_class: projection_class, reader_class: reader_class, snapshot_class: snapshot_class, snapshot_interval: snapshot_interval, reader_batch_size: reader_batch_size, specifier: specifier)
         end
 
         instance = store_class.build
         instance
       end
 
-      def self.example_class(category: nil, entity_class: nil, projection_class: nil, reader_class: nil, snapshot_class: nil, snapshot_interval: nil, reader_batch_size: nil)
+      def self.example_class(category: nil, entity_class: nil, projection_class: nil, reader_class: nil, snapshot_class: nil, snapshot_interval: nil, reader_batch_size: nil, specifier: nil)
         if category == :none
           category = nil
         else
@@ -43,6 +43,12 @@ module EntityStore
           reader_batch_size ||= Controls::Reader::BatchSize.example
         end
 
+        if specifier == :none
+          specifier = nil
+        else
+          specifier ||= Controls::Specifier.example
+        end
+
         Class.new do
           include ::EntityStore
 
@@ -53,6 +59,10 @@ module EntityStore
 
           unless snapshot_class.nil?
             snapshot snapshot_class, interval: snapshot_interval
+          end
+
+          unless specifier.nil?
+            specifier specifier
           end
         end
       end

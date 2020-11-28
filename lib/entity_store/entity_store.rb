@@ -31,6 +31,7 @@ module EntityStore
       virtual :reader_batch_size
       virtual :snapshot_class
       virtual :snapshot_interval
+      virtual :specifier
 
       virtual :configure
 
@@ -39,6 +40,7 @@ module EntityStore
       extend ProjectionMacro
       extend ReaderMacro
       extend SnapshotMacro
+      extend SpecifierMacro
     end
   end
 
@@ -252,5 +254,14 @@ module EntityStore
       end
     end
     alias_method :snapshot, :snapshot_macro
+  end
+
+  module SpecifierMacro
+    def specifier_macro(specifier)
+      define_method :specifier do
+        specifier
+      end
+    end
+    alias_method :specifier, :specifier_macro
   end
 end
