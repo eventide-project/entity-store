@@ -45,9 +45,10 @@ module EntityStore
   end
 
   module Build
-    def build(specifier: nil, snapshot_interval: nil, session: nil)
+    def build(category: nil, specifier: nil, snapshot_interval: nil, session: nil)
       instance = new
 
+      instance.category = category
       instance.session = session
 
       instance.configure
