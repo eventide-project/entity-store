@@ -1,7 +1,7 @@
 require_relative '../automated_init'
 
 context "Category" do
-  context "Configuration" do
+  context "Build Argument" do
     category = Controls::Category.example
 
     context "Category is Declared On Store Class" do
@@ -13,7 +13,7 @@ context "Category" do
 
       assigned_category = store.category
 
-      test "Given category is assigned to the store, overriding the declared one" do
+      test "Category argument is assigned to the store, overriding the declared one" do
         comment assigned_category.inspect
         detail "Given Category: #{category.inspect}"
 
@@ -28,7 +28,7 @@ context "Category" do
 
       assigned_category = store.category
 
-      test "Given category is assigned to the store" do
+      test "Category argument is assigned to the store" do
         assert(assigned_category == category)
       end
     end

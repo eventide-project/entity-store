@@ -1,7 +1,7 @@
 require_relative '../automated_init'
 
 context "Specifier" do
-  context "Configuration" do
+  context "Build Argument" do
     specifier = Controls::Specifier.example
 
     context "Specifier is Declared On Store Class" do
@@ -13,7 +13,7 @@ context "Specifier" do
 
       assigned_specifier = store.cache.specifier
 
-      test "Given specifier is assigned to the cache, overriding the declared one" do
+      test "Specifier argument is assigned to the cache, overriding the declared one" do
         comment assigned_specifier.inspect
         detail "Given Specifier: #{specifier.inspect}"
 
@@ -28,7 +28,7 @@ context "Specifier" do
 
       assigned_specifier = store.cache.specifier
 
-      test "Given specifier is assigned to the cache" do
+      test "Specifier argument is assigned to the cache" do
         assert(assigned_specifier == specifier)
       end
     end
