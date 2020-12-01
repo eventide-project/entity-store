@@ -31,6 +31,7 @@ module EntityStore
       virtual :reader_batch_size
       virtual :snapshot_class
       virtual :snapshot_interval
+      virtual :specifier
 
       virtual :configure
 
@@ -39,22 +40,26 @@ module EntityStore
       extend ProjectionMacro
       extend ReaderMacro
       extend SnapshotMacro
+      extend SpecifierMacro
     end
   end
 
   module Build
-    def build(snapshot_interval: nil, session: nil)
+    def build(category: nil, specifier: nil, snapshot_interval: nil, session: nil)
       instance = new
 
+      instance.category = category
       instance.session = session
 
       instance.configure
 
       Build.assure(instance)
 
+      specifier ||= instance.specifier
       EntityCache.configure(
         instance,
         entity_class,
+        specifier,
         persist_interval: instance.snapshot_interval,
         external_store: instance.snapshot_class,
         external_store_session: session,
@@ -252,5 +257,14 @@ module EntityStore
       end
     end
     alias_method :snapshot, :snapshot_macro
+  end
+
+  module SpecifierMacro
+    def specifier_macro(specifier)
+      define_method :specifier do
+        specifier
+      end
+    end
+    alias_method :specifier, :specifier_macro
   end
 end
