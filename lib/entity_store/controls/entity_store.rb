@@ -74,6 +74,22 @@ module EntityStore
           :some_category
         end
       end
+
+      module NoCategory
+        def self.example(category=nil)
+          category ||= Category.example
+
+          Example.build(category: category)
+        end
+
+        class Example
+          include ::EntityStore
+
+          entity Controls::Entity::Example
+          projection Controls::Projection::Example
+          reader Controls::Reader::Example
+        end
+      end
     end
   end
 end

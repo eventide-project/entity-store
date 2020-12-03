@@ -22,9 +22,7 @@ context "Category" do
     end
 
     context "Category is Not Declared On Store Class" do
-      store_class = Controls::EntityStore.example_class(category: :none)
-
-      store = store_class.build(category: category)
+      store = Controls::EntityStore::NoCategory.example(category)
 
       assigned_category = store.category
 

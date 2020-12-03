@@ -25,7 +25,8 @@ module EntityStore
 
       configure :store
 
-      virtual :category
+      attr_accessor :category
+
       virtual :reader_class
       virtual :projection_class
       virtual :reader_batch_size
