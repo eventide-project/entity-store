@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 Gem::Specification.new do |s|
   s.name = 'evt-entity_store'
-  s.version = '2.0.2.0'
+  s.version = '2.0.3.0'
   s.summary = 'Project and cache entities from event streams, with optional on-disk snapshotting'
   s.description = ' '
 
