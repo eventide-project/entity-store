@@ -11,13 +11,26 @@ context "Specifier" do
 
       store = store_class.build(specifier: specifier)
 
-      assigned_specifier = store.cache.specifier
+      context "Store's Specifier" do
+        store_specifier = store.specifier
 
-      test "Specifier argument is assigned to the cache, overriding the declared one" do
-        comment assigned_specifier.inspect
-        detail "Given Specifier: #{specifier.inspect}"
+        test "Specifier argument overrides the declared one" do
+          comment store_specifier.inspect
+          detail "Given Specifier: #{specifier.inspect}"
 
-        assert(assigned_specifier == specifier)
+          assert(store_specifier == specifier)
+        end
+      end
+
+      context "Store Cache's Specifier" do
+        assigned_specifier = store.cache.specifier
+
+        test "Specifier argument overrides the declared one" do
+          comment assigned_specifier.inspect
+          detail "Given Specifier: #{specifier.inspect}"
+
+          assert(assigned_specifier == specifier)
+        end
       end
     end
 
@@ -26,10 +39,26 @@ context "Specifier" do
 
       store = store_class.build(specifier: specifier)
 
-      assigned_specifier = store.cache.specifier
+      context "Store's Specifier" do
+        store_specifier = store.specifier
 
-      test "Specifier argument is assigned to the cache" do
-        assert(assigned_specifier == specifier)
+        test "Specifier argument is assigned" do
+          comment store_specifier.inspect
+          detail "Given Specifier: #{specifier.inspect}"
+
+          assert(store_specifier == specifier)
+        end
+      end
+
+      context "Store Cache's Specifier" do
+        assigned_specifier = store.cache.specifier
+
+        test "Specifier argument is assigned" do
+          comment assigned_specifier.inspect
+          detail "Given Specifier: #{specifier.inspect}"
+
+          assert(assigned_specifier == specifier)
+        end
       end
     end
   end

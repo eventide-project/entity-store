@@ -26,13 +26,13 @@ module EntityStore
       configure :store
 
       attr_accessor :category
+      attr_accessor :specifier
 
       virtual :reader_class
       virtual :projection_class
       virtual :reader_batch_size
       virtual :snapshot_class
       virtual :snapshot_interval
-      virtual :specifier
 
       virtual :configure
 
@@ -56,7 +56,9 @@ module EntityStore
 
       Build.assure(instance)
 
+      instance.specifier = specifier unless specifier.nil?
       specifier ||= instance.specifier
+
       EntityCache.configure(
         instance,
         entity_class,
@@ -263,7 +265,7 @@ module EntityStore
   module SpecifierMacro
     def specifier_macro(specifier)
       define_method :specifier do
-        specifier
+        @specifier ||= specifier
       end
     end
     alias_method :specifier, :specifier_macro
