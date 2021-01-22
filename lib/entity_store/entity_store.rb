@@ -27,12 +27,12 @@ module EntityStore
 
       attr_accessor :category
       attr_accessor :specifier
+      attr_accessor :snapshot_interval
 
       virtual :reader_class
       virtual :projection_class
       virtual :reader_batch_size
       virtual :snapshot_class
-      virtual :snapshot_interval
 
       virtual :configure
 
@@ -59,11 +59,14 @@ module EntityStore
       instance.specifier = specifier unless specifier.nil?
       specifier ||= instance.specifier
 
+      instance.snapshot_interval = snapshot_interval unless snapshot_interval.nil?
+      snapshot_interval ||= instance.snapshot_interval
+
       EntityCache.configure(
         instance,
         entity_class,
         specifier,
-        persist_interval: instance.snapshot_interval,
+        persist_interval: snapshot_interval,
         external_store: instance.snapshot_class,
         external_store_session: session,
         attr_name: :cache
@@ -256,7 +259,7 @@ module EntityStore
       end
 
       define_method :snapshot_interval do
-        interval
+        @snapshot_interval ||= interval
       end
     end
     alias_method :snapshot, :snapshot_macro
