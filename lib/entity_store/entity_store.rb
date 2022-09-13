@@ -97,7 +97,24 @@ module EntityStore
     end
   end
 
-  def get(id, include: nil, &probe_action)
+  ## This appears to be entirely incomplete work
+  def id(id_or_ids)
+    id = id_or_ids
+
+
+
+    if id.is_a?(Array)
+      id = id.join(MessageStore::StreamName)
+    end
+
+    MessageStore::StreamName.id(id_or_ids)
+    MessageStore::ID.get(id_or_ids)
+  end
+
+  def get(id_or_ids, include: nil, &probe_action)
+    ## ???
+    id = MessageStore::StreamName.stream_name(category, id)
+
     logger.trace(tag: :get) { "Getting entity (ID: #{id.inspect}, Entity Class: #{entity_class.name})" }
 
     record = cache.get id
